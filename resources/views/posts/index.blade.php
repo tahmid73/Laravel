@@ -33,15 +33,32 @@
                     <a href="" class="font-bold capitalize ">{{$post->user->name}}</a>
                     <span class="text-gray-600 text-xs mx-1">{{$post->created_at->diffForHumans()}}</span>
                     <p class="text-gray-800 mb-2">{{$post->body}}</p>
+
+                    @can('delete',$post)
+                    <div>
+                        <form action="{{route('posts.destroy',$post)}}" method="post">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-blue-500">Delete</button>
+                        </form>
+                    </div>
+                    @endcan
                     <div class="flex items-center">
-                        <form action="{{route('posts.likes',$post->id)}}" method="post" class="mr-1">
+                        @auth
+                        @if(!$post->likedBy(auth()->user()))
+                        <form action="{{route('posts.likes',$post)}}" method="post" class="mr-1">
                             @csrf
                             <button type="submit" class="text-blue-400">Like</button>
                         </form>
-                        <form action="" method="post" class="mr-1">
+                        @else
+                        <form action="{{route('posts.likes',$post)}}" method="post" class="mr-1">
                             @csrf
+                            @method('DELETE')
                             <button type="submit" class="text-blue-400">Unike</button>
                         </form>
+                        @endif
+                        
+                        @endauth
                         <span class="mx-2">
                             {{$post->likes->count()}}{{Str::plural('like',$post->likes->count())}}
                         </span>
